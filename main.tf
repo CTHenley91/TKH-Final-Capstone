@@ -78,24 +78,28 @@ resource "aws_security_group" "capstone_sg" {
   description = "Allow HTTP globally and SSH from specific IP"
   vpc_id      = aws_vpc.capstone_vpc.id
 
-  # Allow HTTP (Port 80) from anywhere
+  # tfsec:ignore:aws-vpc-no-public-ingress-sgr
+  # tfsec:ignore:aws-ec2-no-public-ingress-sgr
   ingress {
+    description = "Allow HTTP traffic from anywhere"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Allow SSH (Port 22) ONLY from your home IP
   ingress {
+    description = "Allow SSH traffic from specific home IP"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["192.168.0.252/32"]
   }
 
-  # Outbound rule: Allow all outbound traffic
+  # tfsec:ignore:aws-vpc-no-public-egress-sgr
+  # tfsec:ignore:aws-ec2-no-public-egress-sgr
   egress {
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
@@ -114,7 +118,16 @@ resource "aws_instance" "capstone_web_server" {
   subnet_id              = aws_subnet.capstone_subnet.id
   vpc_security_group_ids = [aws_security_group.capstone_sg.id]
 
-  # User data script to install and start HTTPD web server
+  # Enforce IMDSv2
+  metadata_options {
+    http_tokens = "required"
+  }
+
+  # Encrypt Root Storage Block
+  root_block_device {
+    encrypted = true
+  }
+
   user_data = <<-EOF
               #!/bin/bash
               yum install -y httpd
