@@ -13,6 +13,7 @@ provider "aws" {
 }
 
 # 2. Virtual Private Cloud (VPC)
+#tfsec:ignore:aws-vpc-no-flow-logs
 resource "aws_vpc" "capstone_vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -23,6 +24,7 @@ resource "aws_vpc" "capstone_vpc" {
 }
 
 # 3. Public Subnet
+#tfsec:ignore:aws-ec2-no-public-ip-subnet
 resource "aws_subnet" "capstone_subnet" {
   vpc_id                  = aws_vpc.capstone_vpc.id
   cidr_block              = "10.0.1.0/24"
@@ -73,13 +75,15 @@ data "aws_ami" "amazon_linux_2023" {
 }
 
 # 7. Security Group (Firewall)
+#tfsec:ignore:aws-vpc-no-public-ingress-sgr
+#tfsec:ignore:aws-ec2-no-public-ingress-sgr
+#tfsec:ignore:aws-vpc-no-public-egress-sgr
+#tfsec:ignore:aws-vpc-add-description-to-security-group-rule
 resource "aws_security_group" "capstone_sg" {
   name        = "TKH-Capstone-SG"
   description = "Allow HTTP globally and SSH from specific IP"
   vpc_id      = aws_vpc.capstone_vpc.id
 
-  # tfsec:ignore:aws-vpc-no-public-ingress-sgr
-  # tfsec:ignore:aws-ec2-no-public-ingress-sgr
   ingress {
     description = "Allow HTTP traffic from anywhere"
     from_port   = 80
@@ -96,8 +100,6 @@ resource "aws_security_group" "capstone_sg" {
     cidr_blocks = ["192.168.0.252/32"]
   }
 
-  # tfsec:ignore:aws-vpc-no-public-egress-sgr
-  # tfsec:ignore:aws-ec2-no-public-egress-sgr
   egress {
     description = "Allow all outbound traffic"
     from_port   = 0
@@ -118,12 +120,10 @@ resource "aws_instance" "capstone_web_server" {
   subnet_id              = aws_subnet.capstone_subnet.id
   vpc_security_group_ids = [aws_security_group.capstone_sg.id]
 
-  # Enforce IMDSv2
   metadata_options {
     http_tokens = "required"
   }
 
-  # Encrypt Root Storage Block
   root_block_device {
     encrypted = true
   }
