@@ -75,10 +75,8 @@ data "aws_ami" "amazon_linux_2023" {
 }
 
 # 7. Security Group (Firewall)
-# tfsec:ignore:aws-vpc-no-public-ingress-sgr
-# tfsec:ignore:aws-ec2-no-public-ingress-sgr
-# tfsec:ignore:aws-vpc-no-public-egress-sgr
-# tfsec:ignore:aws-vpc-add-description-to-security-group-rule
+# tfsec:ignore:aws-vpc-no-public-ingress-sg
+# tfsec:ignore:aws-vpc-no-public-egress-sg
 resource "aws_security_group" "capstone_sg" {
   name        = "TKH-Capstone-SG"
   description = "Allow HTTP globally and SSH from specific IP"
