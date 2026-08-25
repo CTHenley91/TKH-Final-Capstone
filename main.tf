@@ -13,7 +13,7 @@ provider "aws" {
 }
 
 # 2. Virtual Private Cloud (VPC)
-# tfsec:ignore:aws-vpc-no-flow-logs
+# tfsec:ignore:aws-ec2-require-vpc-flow-logs-for-all-vpcs
 resource "aws_vpc" "capstone_vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -75,8 +75,8 @@ data "aws_ami" "amazon_linux_2023" {
 }
 
 # 7. Security Group (Firewall)
-# tfsec:ignore:aws-vpc-no-public-ingress-sg
-# tfsec:ignore:aws-vpc-no-public-egress-sg
+# tfsec:ignore:aws-ec2-no-public-ingress-sgr
+# tfsec:ignore:aws-ec2-no-public-egress-sgr
 resource "aws_security_group" "capstone_sg" {
   name        = "TKH-Capstone-SG"
   description = "Allow HTTP globally and SSH from specific IP"
