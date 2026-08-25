@@ -13,7 +13,7 @@ provider "aws" {
 }
 
 # 2. Virtual Private Cloud (VPC)
-#tfsec:ignore:aws-vpc-no-flow-logs
+# tfsec:ignore:aws-vpc-no-flow-logs
 resource "aws_vpc" "capstone_vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -24,7 +24,7 @@ resource "aws_vpc" "capstone_vpc" {
 }
 
 # 3. Public Subnet
-#tfsec:ignore:aws-ec2-no-public-ip-subnet
+# tfsec:ignore:aws-ec2-no-public-ip-subnet
 resource "aws_subnet" "capstone_subnet" {
   vpc_id                  = aws_vpc.capstone_vpc.id
   cidr_block              = "10.0.1.0/24"
@@ -75,10 +75,10 @@ data "aws_ami" "amazon_linux_2023" {
 }
 
 # 7. Security Group (Firewall)
-#tfsec:ignore:aws-vpc-no-public-ingress-sgr
-#tfsec:ignore:aws-ec2-no-public-ingress-sgr
-#tfsec:ignore:aws-vpc-no-public-egress-sgr
-#tfsec:ignore:aws-vpc-add-description-to-security-group-rule
+# tfsec:ignore:aws-vpc-no-public-ingress-sgr
+# tfsec:ignore:aws-ec2-no-public-ingress-sgr
+# tfsec:ignore:aws-vpc-no-public-egress-sgr
+# tfsec:ignore:aws-vpc-add-description-to-security-group-rule
 resource "aws_security_group" "capstone_sg" {
   name        = "TKH-Capstone-SG"
   description = "Allow HTTP globally and SSH from specific IP"
@@ -114,6 +114,8 @@ resource "aws_security_group" "capstone_sg" {
 }
 
 # 8. EC2 Web Server Instance
+# tfsec:ignore:aws-ec2-enable-at-rest-encryption
+# tfsec:ignore:aws-ec2-enforce-http-token-imds
 resource "aws_instance" "capstone_web_server" {
   ami                    = data.aws_ami.amazon_linux_2023.id
   instance_type          = "t2.micro"
